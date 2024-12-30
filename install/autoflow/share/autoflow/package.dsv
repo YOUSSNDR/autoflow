@@ -1,0 +1,8 @@
+source;share/autoflow/hook/cmake_prefix_path.ps1
+source;share/autoflow/hook/cmake_prefix_path.dsv
+source;share/autoflow/hook/cmake_prefix_path.sh
+source;share/autoflow/local_setup.bash
+source;share/autoflow/local_setup.dsv
+source;share/autoflow/local_setup.ps1
+source;share/autoflow/local_setup.sh
+source;share/autoflow/local_setup.zsh

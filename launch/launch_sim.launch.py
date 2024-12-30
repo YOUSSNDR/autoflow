@@ -7,7 +7,7 @@ from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
-
+from launch.conditions import IfCondition
 
 def generate_launch_description():
     # Define the robot's name and package name
@@ -111,6 +111,23 @@ def generate_launch_description():
         output='screen'
     )
 
+    # prepare the RVIZ launch
+    rviz_launch_arg = DeclareLaunchArgument(
+        'rviz', default_value='true',
+        description='Open RViz.'
+    )
+
+    # Launch rviz
+    rviz = Node(
+        package='rviz2',
+        executable='rviz2',
+        arguments=['-d', os.path.join(robot_pkg_name, 'config', 'vehicle.rviz')],
+        condition=IfCondition(LaunchConfiguration('rviz')),
+        parameters=[
+            {'use_sim_time': True},
+        ]
+    )
+
     # Create a node for the ROS-Gazebo bridge to handle message passing
     gz_bridge_node = Node(
         package='ros_gz_bridge',
@@ -123,7 +140,10 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        robot_state_publisher_node,
         world_arg,
+        rviz_launch_arg,
+        rviz,
         gazebo_launch,
         x_arg,
         y_arg,
@@ -132,6 +152,5 @@ def generate_launch_description():
         pitch_arg,
         yaw_arg,
         spawn_model_gazebo_node,
-        robot_state_publisher_node,
         gz_bridge_node,
     ])

@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
+
+    <xacro:include filename ="inertial_macros.xacro"/>
+
+    <material name ="white">
+        <color rgba="1 1 1 1" />
+    </material>
+
+    <material name ="orange">
+        <color rgba="1 0.3 0.1 1" />
+    </material>
+
+    <material name ="blue">
+        <color rgba="0.2 0.2 1 1" />
+    </material>
+
+    <material name ="black">
+        <color rgba="0 0 0 1" />
+    </material>
+
+    <xacro:macro name="chassis_rectangle" params="origin_xyz length width mass">
+        <visual>
+            <origin xyz="${origin_xyz}"/>
+            <geometry>
+                <box size="${length} ${width} 0.005"/>
+            </geometry>
+            <material name="white"/>
+        </visual>
+        <collision>
+            <origin xyz="${origin_xyz}"/>
+            <geometry>
+                <box size="${length} ${width} 0.005"/>
+            </geometry>
+        </collision>
+        <xacro:inertial_box mass="${mass}" x="${length}" y="${width}" z="0.005">
+            <origin xyz= "${origin_xyz}" rpy="0 0 0"/>
+        </xacro:inertial_box>
+    
+    </xacro:macro>
+
+    <xacro:macro name="chassis_spacer" params="origin_xyz radius length mass">
+        <visual>
+            <origin xyz="${origin_xyz}"/>
+            <geometry>
+                <cylinder radius = "${radius}" length="${length}"/>
+            </geometry>
+            <material name="white"/>
+        </visual>
+        <collision>
+            <origin xyz="${origin_xyz}"/>
+            <geometry>
+                <cylinder radius = "${radius}" length="${length}"/>
+            </geometry>
+        </collision>
+        <xacro:inertial_cylinder mass="${mass}" length="${length}" radius="${radius}">
+            <origin xyz= "${origin_xyz}" rpy="0 0 0"/>
+        </xacro:inertial_cylinder>
+    </xacro:macro>
