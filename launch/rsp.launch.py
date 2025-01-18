@@ -1,41 +1,42 @@
-import os
-
-from ament_index_python.packages import get_package_share_directory
-
-from launch import LaunchDescription
-from launch.substitutions import LaunchConfiguration
-from launch.actions import DeclareLaunchArgument
 from launch_ros.actions import Node
-
-import xacro
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch_ros.substitutions import FindPackageShare
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Command
 
 
 def generate_launch_description():
 
-    # Check if we're told to use sim time
+    # Package name
+    package_name = FindPackageShare("autoflow")
+
+    # Default robot description if none is specified
+    urdf_path = PathJoinSubstitution([package_name, "description", "robot.urdf.xacro"])
+    
+    # Launch configurations
+    urdf = LaunchConfiguration('urdf')
     use_sim_time = LaunchConfiguration('use_sim_time')
 
-    # Process the URDF file
-    pkg_path = os.path.join(get_package_share_directory('autoflow'))
-    xacro_file = os.path.join(pkg_path,'description','robot.urdf.xacro')
-    robot_description_config = xacro.process_file(xacro_file)
-    
-    # Create a robot_state_publisher node
-    params = {'robot_description': robot_description_config.toxml(), 'use_sim_time': use_sim_time}
-    node_robot_state_publisher = Node(
+    # Declare launch arguments
+    declare_use_sim_time = DeclareLaunchArgument(
+            'use_sim_time', default_value='false',
+            description='Use sim time if true')
+
+    declare_urdf = DeclareLaunchArgument(
+            name='urdf', default_value=urdf_path,
+            description='Path to the robot description file')
+
+    # Create a robot state publisher 
+    robot_state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         output='screen',
-        parameters=[params]
+        parameters=[{'use_sim_time': use_sim_time,'robot_description': Command(['xacro ', urdf])}]
     )
-
 
     # Launch!
     return LaunchDescription([
-        DeclareLaunchArgument(
-            'use_sim_time',
-            default_value='false',
-            description='Use sim time if true'),
-
-        node_robot_state_publisher
+        declare_urdf,
+        declare_use_sim_time,
+        robot_state_publisher
     ])

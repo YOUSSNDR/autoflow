@@ -18,7 +18,7 @@ def generate_launch_description():
     world_arg = DeclareLaunchArgument(
         'world',
         default_value='empty.sdf',
-        description='Specify the world file for Gazebo (e.g., empty.sdf)'
+        description='Gz sim World'
     )
 
     # Define launch arguments for initial pose
@@ -112,17 +112,14 @@ def generate_launch_description():
     )
 
     # prepare the RVIZ launch
-    rviz_launch_arg = DeclareLaunchArgument(
-        'rviz', default_value='true',
-        description='Open RViz.'
-    )
 
     # Launch rviz
     rviz = Node(
         package='rviz2',
         executable='rviz2',
-        arguments=['-d', os.path.join(robot_pkg_name, 'config', 'vehicle.rviz')],
-        condition=IfCondition(LaunchConfiguration('rviz')),
+        name="rviz2",
+        output="log",
+        arguments=['-d', os.path.join(robot_pkg_name, 'config', 'config_bot.rviz')],
         parameters=[
             {'use_sim_time': True},
         ]
@@ -142,7 +139,6 @@ def generate_launch_description():
     return LaunchDescription([
         robot_state_publisher_node,
         world_arg,
-        rviz_launch_arg,
         rviz,
         gazebo_launch,
         x_arg,
